@@ -146,6 +146,4 @@ Este projeto está sob a licença [MIT](LICENSE). Veja o arquivo [LICENSE](LICEN
 
 ---
 
-[![Made with R](https://img.shields.io/badge/made%20with-R![For Agricultural Science](https://img.shields.io/badge/for-agriculture***
-
 **agrifit** © 2025 Jardel Fialho. Construído para ciência agrícola.
