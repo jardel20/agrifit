@@ -9,10 +9,7 @@
 ```r
 # Do GitHub (versão atual)
 if (!require("devtools")) install.packages("devtools")
-devtools::install_github("jardelllfialho/agrifit")
-
-# Futuro no CRAN
-# install.packages("agrifit")
+devtools::install_github("jardel20/agrifit")
 ```
 
 ```r
