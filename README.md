@@ -4,6 +4,10 @@
 
 **agrifit** ajusta modelos não-lineares para experimentos agrícolas de dose-resposta (fertilizantes, defensivos, etc.). Implementa o modelo **Linear Response Plateau (LRP)** com detecção automática de breakpoint pelo maior R², suporte a múltiplas respostas simultâneas e gráficos profissionais (ggplot2 + plotly interativo).
 
+**Oferece duas versões da função de ajuste:**
+- `ajustar_lrp()` - Versão padrão com estimativas básicas
+- `ajustar_lrp2()` - Versão expandida com estatísticas avançadas (AIC, BIC, RMSE, testes de significância)
+
 ### ✨ **Instalação**
 
 ```r
@@ -16,14 +20,14 @@ devtools::install_github("jardel20/agrifit")
 library(agrifit)
 ```
 
-### 📊 **Exemplo Básico**
+### 📊 **Exemplo Básico com `ajustar_lrp()`**
 
 ```r
 # Dados: Matéria seca vs Dose de fósforo
 dose_P <- c(0.0, 32.5, 65.0, 97.5, 130.0, 195.0)
 materia_seca <- c(6.74, 8.73, 10.89, 12.56, 14.11, 15.21)
 
-# Ajusta LRP automaticamente
+# Ajusta LRP automaticamente (versão padrão)
 resultado <- ajustar_lrp(
   dose = dose_P,
   MS = materia_seca,
@@ -35,21 +39,24 @@ resultado <- ajustar_lrp(
 
 **Saídas automáticas:**
 ```
-══ Ajuste LRP | Linear Response Plateau ══
-Respostas: 1 (MS)
-──────────────────── MS ────────────────────
+══ Ajuste LRP Múltiplo | LRP - Linear Response Plateau ══
+Dose: 6 pontos | Respostas: 1 (MS)
+
+------------------------ MS ------------------------
 R²: 0.9923
-Ponto de Interseção (Xi): 142.35
-Ponto de Quebra (Xk): 130.00 (idx 5)
+Ponto de Intersecção (Xi): 142.35
+Ponto de Quebra na Tabela (Xk): 130.00 (idx 5)
 Equação:
 MS: Ŷ = 6.5124 + 0.0547X (X < 142.35); Ŷ = 15.2147
+
+Gráfico salvo como: 'lrp_multiplo.png'
 ```
 
 **Gráficos gerados:**
-- `agrifit_multiplo.png` (300 DPI)
+- `lrp_multiplo.png` (12x8 polegadas, 300 DPI)
 - Plotly interativo na tela
 
-### 🔬 **Exemplo Múltiplas Respostas**
+### 🔬 **Exemplo Múltiplas Respostas com `ajustar_lrp()`**
 
 ```r
 # Duas respostas simultâneas
@@ -62,6 +69,65 @@ ajustar_lrp(
   adjustment_color = "Dark2"
 )
 ```
+
+### 🔧 **Exemplo Avançado com `ajustar_lrp2()` (com Estatísticas Completas)**
+
+```r
+# Dados com mais pontos para melhor estimativa de significância
+dose_P <- c(0.0, 32.5, 65.0, 97.5, 130.0, 195.0, 260.0, 325.0)
+materia_seca <- c(6.74, 8.73, 10.89, 12.56, 14.11, 15.21, 15.50, 15.60)
+
+# Ajusta LRP com estatísticas avançadas
+resultado_adv <- ajustar_lrp2(
+  dose = dose_P,
+  MS = materia_seca,
+  title = "Matéria Seca vs Dose de Fósforo",
+  xlab = "P (mg/dm³)",
+  ylab = "MS (g/vaso)",
+  dashed = TRUE,
+  show_intersection = TRUE
+)
+```
+
+**Saídas automáticas (versão expandida):**
+```
+══ Ajuste LRP Múltiplo | LRP - Linear Response Plateau ══
+Dose: 8 pontos | Respostas: 1 (MS)
+
+------------------------ MS ------------------------
+R²: 0.9923 | RMSE: 0.3214 | AIC: -18.52 | BIC: -14.89
+Ponto de Intersecção (Xi): 142.35
+Ponto de Quebra na Tabela (Xk): 130.00 (idx 5)
+Equação:
+MS: Ŷ = 6.5124 + 0.0547X (X < 142.35); Ŷ = 15.2147
+
+             Estimate Std. Error t value Pr(>|t|)    
+(Intercepto)    6.5124      0.1234   52.78  0.0001 ***
+X               0.0547      0.0012   45.58  0.0002 ***
+Plateau (b2)   15.2147      0.0856  177.62  < .0001 ***
+
+Graus de Liberdade Residual (Linear): 2
+Graus de Liberdade Residual (Plateau): 3
+
+Gráfico salvo como: 'lrp_multiplo.png'
+```
+
+### 🎯 **Comparação das Duas Funções**
+
+| Aspecto | `ajustar_lrp()` | `ajustar_lrp2()` |
+|---------|------------------|------------------|
+| **R²** | ✅ | ✅ |
+| **Parâmetros (b0, b1, b2)** | ✅ | ✅ |
+| **Ponto de Intersecção (Xi)** | ✅ | ✅ |
+| **Gráficos (ggplot2 + plotly)** | ✅ | ✅ |
+| **RMSE** | ❌ | ✅ |
+| **AIC / BIC** | ❌ | ✅ |
+| **P-valores** | ❌ | ✅ |
+| **Erro Padrão (SE)** | ❌ | ✅ |
+| **t-valores** | ❌ | ✅ |
+| **Tabela de Coeficientes** | ❌ | ✅ |
+| **Ideal para** | Exploração rápida | Análises detalhadas |
+| **Requisitos mínimos** | N ≥ 4 | N ≥ 5 (recomendado) |
 
 ### 🎛️ **Parâmetros Personalizáveis**
 
@@ -125,10 +191,11 @@ resultado$grafico_plotly
 - [ ] Intervalos de confiança (bootstrap)
 - [ ] Exportação para Word/LaTeX
 
-## 📚 **Documentação**
+### 📚 **Documentação**
 
 ```r
 ?ajustar_lrp
+?ajustar_lrp2
 ```
 
 ## 📄 **Licença**
