@@ -83,7 +83,7 @@ para os parâmetros do segmento linear (\eqn{b_0} e \eqn{b_1}).
 dose_P <- c(0.0, 32.5, 65.0, 97.5, 130.0, 195.0, 260.0, 325.0)
 MS <- c(6.74, 8.73, 10.89, 12.56, 14.11, 15.21, 15.50, 15.60)
 
-res <- ajustar_lrp(
+res <- ajustar_lrp2(
   dose = dose_P, MS = MS,
   title = "Matéria Seca vs Dose de P",
   xlab = "P (mg/dm³)", ylab = "MS (g/vaso)",
