@@ -24,3 +24,19 @@ Lista com:
 \description{
 Implementa o ajuste do modelo de regressão raiz quadrática: Y = b0 + b1 * sqrt(X) + b2 * X.
 }
+\examples{
+\dontrun{
+dose <- c(0, 25, 50, 100, 150, 200)
+resposta <- c(10, 16, 20, 26, 30, 33)
+
+resultado <- ajustar_raiz_quadratica(
+  dose = dose,
+  Y = resposta,
+  verbose = TRUE
+)
+
+print(resultado$resultados)
+print(resultado$equacoes)
+}
+
+}

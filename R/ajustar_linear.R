@@ -13,6 +13,21 @@
 #'   \item{equacoes}{Strings formatadas das equações.}
 #' }
 #'
+#' @examples
+#' \dontrun{
+#' dose <- c(0, 50, 100, 150, 200, 250)
+#' resposta <- c(10, 15, 20, 25, 30, 35)
+#'
+#' resultado <- ajustar_linear(
+#'   dose = dose,
+#'   Y = resposta,
+#'   verbose = TRUE
+#' )
+#'
+#' print(resultado$resultados)
+#' print(resultado$equacoes)
+#' }
+#'
 #' @importFrom stats lm coef pt qt
 #' @importFrom dplyr "%>%"
 #'

@@ -24,3 +24,19 @@ Lista com:
 \description{
 Implementa o ajuste do modelo de regressão quadrática: Y = b0 + b1 * X + b2 * X^2.
 }
+\examples{
+\dontrun{
+dose <- c(0, 50, 100, 150, 200, 250)
+resposta <- c(10, 18, 24, 28, 30, 31)
+
+resultado <- ajustar_quadratico(
+  dose = dose,
+  Y = resposta,
+  verbose = TRUE
+)
+
+print(resultado$resultados)
+print(resultado$equacoes)
+}
+
+}

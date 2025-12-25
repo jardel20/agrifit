@@ -25,3 +25,19 @@ Lista com:
 Implementa o ajuste do modelo de regressão exponencial: Y = a * exp(b * X).
 O ajuste é feito usando \code{nls} (Non-linear Least Squares).
 }
+\examples{
+\dontrun{
+dose <- c(0, 25, 50, 75, 100, 125)
+resposta <- c(10, 12, 15, 20, 28, 40)
+
+resultado <- ajustar_exponencial(
+  dose = dose,
+  Y = resposta,
+  verbose = TRUE
+)
+
+print(resultado$resultados)
+print(resultado$equacoes)
+}
+
+}

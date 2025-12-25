@@ -17,6 +17,21 @@
 #' @importFrom stats nls coef pt qt logLik AIC BIC predict
 #' @importFrom dplyr "%>%"
 #'
+#' @examples
+#' \dontrun{
+#' dose <- c(0, 50, 100, 150, 200, 250)
+#' resposta <- c(5, 12, 18, 22, 25, 27)
+#'
+#' resultado <- ajustar_mitscherlich(
+#'   dose = dose,
+#'   Y = resposta,
+#'   verbose = TRUE
+#' )
+#'
+#' print(resultado$resultados)
+#' print(resultado$equacoes)
+#' }
+#'
 #' @export
 ajustar_mitscherlich <- function(dose, ..., verbose = TRUE) {
   # Funções auxiliares (copiadas da estrutura LRP)

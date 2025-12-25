@@ -18,6 +18,23 @@
 #' @importFrom stats lm coef pt qt
 #' @importFrom dplyr "%>%"
 #'
+#' @examples
+#' \dontrun{
+#' X1 <- c(-1, -1, 1, 1, 0, 0, 0, 0, 0)
+#' X2 <- c(-1, 1, -1, 1, 0, 0, 0, 0, 0)
+#' prod <- c(50, 60, 55, 70, 65, 65, 65, 66, 64)
+#'
+#' resultado <- analise_superficie_resposta(
+#'   X1 = X1,
+#'   X2 = X2,
+#'   Producao = prod,
+#'   verbose = TRUE
+#' )
+#'
+#' print(resultado$resultados)
+#' print(resultado$equacoes)
+#' }
+#'
 #' @export
 analise_superficie_resposta <- function(X1, X2, ..., verbose = TRUE) {
   

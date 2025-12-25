@@ -18,3 +18,25 @@ Data frame consolidado com os resultados de AIC, BIC e R² para todos os modelos
 Consolida e compara os resultados de diferentes modelos de regressão (Linear, Quadrático, etc.)
 com base em métricas de ajuste como AIC, BIC e R².
 }
+\examples{
+\dontrun{
+dose <- c(0, 50, 100, 150, 200, 250)
+resposta <- c(10, 18, 24, 28, 30, 31)
+
+# Ajusta diferentes modelos
+modelo_linear <- ajustar_linear(dose, Y = resposta, verbose = FALSE)
+modelo_quad <- ajustar_quadratico(dose, Y = resposta, verbose = FALSE)
+modelo_cubico <- ajustar_cubico(dose, Y = resposta, verbose = FALSE)
+
+# Compara os modelos
+comparacao <- escolha_modelo_adequado(
+  modelo_linear,
+  modelo_quad,
+  modelo_cubico,
+  verbose = TRUE
+)
+
+print(comparacao)
+}
+
+}

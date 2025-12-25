@@ -16,6 +16,21 @@
 #' @importFrom stats lm coef pt qt
 #' @importFrom dplyr "%>%"
 #'
+#' @examples
+#' \dontrun{
+#' dose <- c(0, 25, 50, 100, 150, 200)
+#' resposta <- c(10, 16, 20, 26, 30, 33)
+#'
+#' resultado <- ajustar_raiz_quadratica(
+#'   dose = dose,
+#'   Y = resposta,
+#'   verbose = TRUE
+#' )
+#'
+#' print(resultado$resultados)
+#' print(resultado$equacoes)
+#' }
+#'
 #' @export
 ajustar_raiz_quadratica <- function(dose, ..., verbose = TRUE) {
   

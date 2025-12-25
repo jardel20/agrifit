@@ -14,6 +14,31 @@
 #' @importFrom dplyr "%>%"
 #' @importFrom tidyr pivot_wider
 #'
+#' @examples
+#' \dontrun{
+#' X1 <- c(-1, -1, 1, 1, 0, 0, 0, 0, 0)
+#' X2 <- c(-1, 1, -1, 1, 0, 0, 0, 0, 0)
+#' prod <- c(50, 60, 55, 70, 65, 65, 65, 66, 64)
+#'
+#' # Ajusta modelo de superfície
+#' superficie <- analise_superficie_resposta(
+#'   X1 = X1, X2 = X2,
+#'   Producao = prod,
+#'   verbose = FALSE
+#' )
+#'
+#' # Calcula DMEE
+#' otimizacao <- otimizacao_superficie_matrizes(
+#'   modelo_superficie = superficie,
+#'   preco_insumo_X1 = 20,
+#'   preco_insumo_X2 = 25,
+#'   preco_produto = 100,
+#'   verbose = TRUE
+#' )
+#'
+#' print(otimizacao)
+#' }
+#'
 #' @export
 otimizacao_superficie_matrizes <- function(
   modelo_superficie,

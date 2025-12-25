@@ -17,6 +17,21 @@
 #' @importFrom stats nls coef pt qt logLik AIC BIC predict
 #' @importFrom dplyr "%>%"
 #'
+#' @examples
+#' \dontrun{
+#' dose <- c(0, 25, 50, 75, 100, 125)
+#' resposta <- c(10, 12, 15, 20, 28, 40)
+#'
+#' resultado <- ajustar_exponencial(
+#'   dose = dose,
+#'   Y = resposta,
+#'   verbose = TRUE
+#' )
+#'
+#' print(resultado$resultados)
+#' print(resultado$equacoes)
+#' }
+#'
 #' @export
 ajustar_exponencial <- function(dose, ..., verbose = TRUE) {
   # Funções auxiliares (copiadas da estrutura LRP)

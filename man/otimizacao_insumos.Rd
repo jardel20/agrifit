@@ -27,3 +27,23 @@ Data frame com os resultados de otimização (DMET, Y_max, DMEE, Y_DMEE) para ca
 Calcula a Dose de Máxima Eficiência Técnica (DMET) e a Dose de Máxima Eficiência
 Econômica (DMEE) para modelos de regressão quadrática (Y = b0 + b1\emph{X + b2}X^2).
 }
+\examples{
+\dontrun{
+dose <- c(0, 50, 100, 150, 200, 250)
+resposta <- c(10, 18, 24, 28, 30, 31)
+
+# Ajusta modelo quadrático
+modelo_quad <- ajustar_quadratico(dose, Y = resposta, verbose = FALSE)
+
+# Calcula DMET e DMEE
+otimizacao <- otimizacao_insumos(
+  modelo_quadratico = modelo_quad,
+  preco_insumo = 10,
+  preco_produto = 50,
+  verbose = TRUE
+)
+
+print(otimizacao)
+}
+
+}

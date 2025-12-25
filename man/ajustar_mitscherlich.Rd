@@ -25,3 +25,19 @@ Lista com:
 Implementa o ajuste do modelo de Mitscherlich: Y = A - B * c^X.
 O ajuste é feito usando \code{nls} (Non-linear Least Squares).
 }
+\examples{
+\dontrun{
+dose <- c(0, 50, 100, 150, 200, 250)
+resposta <- c(5, 12, 18, 22, 25, 27)
+
+resultado <- ajustar_mitscherlich(
+  dose = dose,
+  Y = resposta,
+  verbose = TRUE
+)
+
+print(resultado$resultados)
+print(resultado$equacoes)
+}
+
+}
