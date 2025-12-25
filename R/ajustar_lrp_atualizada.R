@@ -173,11 +173,11 @@ ajustar_lrp <- function(dose, ...,
       K <- 3
       # Log-Verossimilhança (Log-Likelihood)
       # logL = - (n/2) * [log(2*pi) + log(SSE/n) + 1]
-      logL <- - (n / 2) * (log(2 * pi) + log(SSE / n) + 1)
-      
+      logL <- -(n / 2) * (log(2 * pi) + log(SSE / n) + 1)
+
       # AIC = -2 * logL + 2K
       AIC_val <- -2 * logL + 2 * K
-      
+
       # BIC = -2 * logL + K * log(n)
       BIC_val <- -2 * logL + K * log(n)
 
@@ -380,9 +380,12 @@ ajustar_lrp <- function(dose, ...,
   # Função auxiliar para formatar p-valor com códigos de significância
   format_p_value <- function(p) {
     stars <- ifelse(p < 0.001, "***",
-                    ifelse(p < 0.01, "**",
-                           ifelse(p < 0.05, "*",
-                                  ifelse(p < 0.1, ".", " "))))
+      ifelse(p < 0.01, "**",
+        ifelse(p < 0.05, "*",
+          ifelse(p < 0.1, ".", " ")
+        )
+      )
+    )
     return(sprintf("%.4f %s", p, stars))
   }
 
@@ -394,7 +397,7 @@ ajustar_lrp <- function(dose, ...,
     std_errors <- c(model$se_b0, model$se_b1, model$se_b2)
     t_values <- c(model$t_b0, model$t_b1, model$t_b2)
     p_values <- c(model$p_b0, model$p_b1, model$p_b2)
-    
+
     # Intervalos de Confiança
     ic_low <- c(model$ic_b0_low, model$ic_b1_low, model$ic_b2_low)
     ic_high <- c(model$ic_b0_high, model$ic_b1_high, model$ic_b2_high)
@@ -415,24 +418,29 @@ ajustar_lrp <- function(dose, ...,
     coef_df$Std.Error <- ifelse(is.na(coef_df$Std.Error), "NA", sprintf("%.4f", coef_df$Std.Error))
     coef_df$t.value <- ifelse(is.na(coef_df$t.value), "NA", sprintf("%.2f", coef_df$t.value))
     coef_df$Pr.t <- sapply(coef_df$Pr.t, function(p) {
-      if (is.na(p)) return("NA")
+      if (is.na(p)) {
+        return("NA")
+      }
       format_p_value(p)
     })
 
     # Alinhamento e cabeçalho
-    header <- "             Estimate Std. Error t value Pr(>|t|)    "
+    sep_line <- "──────────────────────────────────────────────────────────────────"
+    header <- "Parameter         Estimate Std. Error  t value  Pr(>|t|)"
     lines <- apply(coef_df, 1, function(row) {
-      sprintf("%-15s %s %s %s %s", row[1], row[2], row[3], row[4], row[5])
+      sprintf("%-18s%-10s%-12s%-10s%-12s", row[1], row[2], row[3], row[4], row[5])
     })
 
     # Adiciona a linha de significância
-    signif_line <- "---
+    signif_line <- "─────────────────────────────────────────────────────────────────────────────────────
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1"
 
     # Junta tudo
     output <- paste(
       "Coefficients:",
+      sep_line,
       header,
+      sep_line,
       paste(lines, collapse = "\n"),
       signif_line,
       sep = "\n"
@@ -456,8 +464,10 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
 
       cat(sprintf("------------------------ %s ------------------------\n", nome))
       if (!is.null(model)) {
-        cat(sprintf("R²: %.4f | RMSE: %.4f | AIC: %.2f | BIC: %.2f\n",
-                    model$R2, model$RMSE, model$AIC, model$BIC))
+        cat(sprintf(
+          "R²: %.4f | RMSE: %.4f | AIC: %.2f | BIC: %.2f\n",
+          model$R2, model$RMSE, model$AIC, model$BIC
+        ))
         cat(sprintf("Ponto de Intersecção (Xi): %.4f\n", model$Xi))
         cat(sprintf("Ponto de Quebra na Tabela (Xk): %.4f (idx %d)\n", model$breakpoint_X_data, model$breakpoint_index))
         cat("Equação:\n", eq, "\n\n")
@@ -474,7 +484,6 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
           cat("Causa: O número de pontos de dose (N) é inferior a 5. O ajuste linear requer pelo menos 3 pontos no segmento linear (N_linear >= 3) para ter graus de liberdade residuais (df_res > 0) e permitir o cálculo dessas estatísticas.\n")
           cat("O ajuste LRP (R², RMSE, AIC, BIC) foi realizado com sucesso.\n")
         }
-
       } else {
         cat("❌ Não foi possível ajustar\n")
       }

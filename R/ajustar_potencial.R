@@ -107,10 +107,11 @@ ajustar_potencial <- function(dose, ..., verbose = TRUE) {
     )
 
     # Alinhamento e cabeçalho
-    header <- "             Estimate Std. Error t value Pr(>|t|)    IC 95% Low   IC 95% High"
+    sep_line <- "──────────────────────────────────────────────────────────────────────────────────"
+    header <- "Parameter         Estimate Std. Error  t value  Pr(>|t|)   IC 95% Low  IC 95% High"
     lines <- apply(coef_df, 1, function(row) {
       sprintf(
-        "%-15s %s %s %s %s %s %s",
+        "%-18s%-10s%-12s%-10s%-12s%-12s%-12s",
         row[1],
         row[2],
         row[3],
@@ -122,16 +123,20 @@ ajustar_potencial <- function(dose, ..., verbose = TRUE) {
     })
 
     # Adiciona a linha de significância
-    signif_line <- "---
+    signif_line <- "──────────────────────────────────────────────────────────────────────────────────
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1"
 
     # Junta tudo
     output <- paste(
       "Coefficients:",
+      sep_line,
       header,
-      paste(lines, collapse = "\n"),
+      sep_line,
+      paste(lines, collapse = "
+"),
       signif_line,
-      sep = "\n"
+      sep = "
+"
     )
 
     return(output)

@@ -400,19 +400,22 @@ ajustar_lrp2 <- function(dose, ...,
     })
 
     # Alinhamento e cabeçalho
-    header <- "             Estimate Std. Error t value Pr(>|t|)    "
+    sep_line <- "──────────────────────────────────────────────────────────────────"
+    header <- "Parameter         Estimate Std. Error  t value  Pr(>|t|)"
     lines <- apply(coef_df, 1, function(row) {
-      sprintf("%-15s %s %s %s %s", row[1], row[2], row[3], row[4], row[5])
+      sprintf("%-18s%-10s%-12s%-10s%-12s", row[1], row[2], row[3], row[4], row[5])
     })
 
     # Adiciona a linha de significância
-    signif_line <- "---
+    signif_line <- "──────────────────────────────────────────────────────────────────────────────────
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1"
 
     # Junta tudo
     output <- paste(
       "Coefficients:",
+      sep_line,
       header,
+      sep_line,
       paste(lines, collapse = "\n"),
       signif_line,
       sep = "\n"
