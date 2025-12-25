@@ -61,7 +61,6 @@
 #' print(res$equacoes)
 #' }
 #' @importFrom stats lm coef pt sd qt
-#' @importFrom magrittr %>%
 #' @importFrom dplyr "%>%"
 #'
 #' @export
