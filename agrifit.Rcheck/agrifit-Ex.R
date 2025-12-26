@@ -1,0 +1,434 @@
+pkgname <- "agrifit"
+source(file.path(R.home("share"), "R", "examples-header.R"))
+options(warn = 1)
+library('agrifit')
+
+base::assign(".oldSearch", base::search(), pos = 'CheckExEnv')
+base::assign(".old_wd", base::getwd(), pos = 'CheckExEnv')
+cleanEx()
+nameEx("ajustar_cubico")
+### * ajustar_cubico
+
+flush(stderr()); flush(stdout())
+
+### Name: ajustar_cubico
+### Title: Ajusta o Modelo Cúbico
+### Aliases: ajustar_cubico
+
+### ** Examples
+
+## Not run: 
+##D dose <- c(0, 50, 100, 150, 200, 250)
+##D resposta <- c(10, 18, 26, 29, 31, 32)
+##D 
+##D resultado <- ajustar_cubico(
+##D   dose = dose,
+##D   Y = resposta,
+##D   verbose = TRUE
+##D )
+##D 
+##D print(resultado$resultados)
+##D print(resultado$equacoes)
+## End(Not run)
+
+
+
+
+cleanEx()
+nameEx("ajustar_exponencial")
+### * ajustar_exponencial
+
+flush(stderr()); flush(stdout())
+
+### Name: ajustar_exponencial
+### Title: Ajusta o Modelo Exponencial
+### Aliases: ajustar_exponencial
+
+### ** Examples
+
+## Not run: 
+##D dose <- c(0, 25, 50, 75, 100, 125)
+##D resposta <- c(10, 12, 15, 20, 28, 40)
+##D 
+##D resultado <- ajustar_exponencial(
+##D   dose = dose,
+##D   Y = resposta,
+##D   verbose = TRUE
+##D )
+##D 
+##D print(resultado$resultados)
+##D print(resultado$equacoes)
+## End(Not run)
+
+
+
+
+cleanEx()
+nameEx("ajustar_linear")
+### * ajustar_linear
+
+flush(stderr()); flush(stdout())
+
+### Name: ajustar_linear
+### Title: Ajusta o Modelo Linear Simples
+### Aliases: ajustar_linear
+
+### ** Examples
+
+## Not run: 
+##D dose <- c(0, 50, 100, 150, 200, 250)
+##D resposta <- c(10, 15, 20, 25, 30, 35)
+##D 
+##D resultado <- ajustar_linear(
+##D   dose = dose,
+##D   Y = resposta,
+##D   verbose = TRUE
+##D )
+##D 
+##D print(resultado$resultados)
+##D print(resultado$equacoes)
+## End(Not run)
+
+
+
+
+cleanEx()
+nameEx("ajustar_lrp")
+### * ajustar_lrp
+
+flush(stderr()); flush(stdout())
+
+### Name: ajustar_lrp
+### Title: Ajusta o Modelo Linear Descontínuo (LRP)
+### Aliases: ajustar_lrp
+
+### ** Examples
+
+## Not run: 
+##D dose_P <- c(0.0, 32.5, 65.0, 97.5, 130.0, 195.0, 260.0, 325.0)
+##D MS <- c(6.74, 8.73, 10.89, 12.56, 14.11, 15.21, 15.50, 15.60)
+##D 
+##D res <- ajustar_lrp(
+##D   dose = dose_P, MS = MS,
+##D   title = "Matéria Seca vs Dose de P",
+##D   xlab = "P (mg/dm³)", ylab = "MS (g/vaso)",
+##D   adjustment_color = "Dark2"
+##D )
+##D 
+##D print(res$resultados)
+##D print(res$equacoes)
+## End(Not run)
+## Not run: 
+##D dose_P <- c(0.0, 32.5, 65.0, 97.5, 130.0, 195.0)
+##D MS <- c(6.74, 8.73, 10.89, 12.56, 14.11, 15.21)
+##D 
+##D res <- ajustar_lrp(
+##D   dose = dose_P, MS = MS,
+##D   title = "Matéria Seca vs Dose de P",
+##D   xlab = "P (mg/dm³)", ylab = "MS (g/vaso)",
+##D   adjustment_color = "Dark2"
+##D )
+##D 
+##D print(res$resultados)
+##D print(res$equacoes)
+## End(Not run)
+
+
+
+cleanEx()
+nameEx("ajustar_lrp2")
+### * ajustar_lrp2
+
+flush(stderr()); flush(stdout())
+
+### Name: ajustar_lrp2
+### Title: Ajusta o Modelo Linear Descontínuo (LRP)
+### Aliases: ajustar_lrp2
+
+### ** Examples
+
+## Not run: 
+##D dose_P <- c(0.0, 32.5, 65.0, 97.5, 130.0, 195.0, 260.0, 325.0)
+##D MS <- c(6.74, 8.73, 10.89, 12.56, 14.11, 15.21, 15.50, 15.60)
+##D 
+##D res <- ajustar_lrp2(
+##D   dose = dose_P, MS = MS,
+##D   title = "Matéria Seca vs Dose de P",
+##D   xlab = "P (mg/dm³)", ylab = "MS (g/vaso)",
+##D   adjustment_color = "Dark2"
+##D )
+##D 
+##D print(res$resultados)
+##D print(res$equacoes)
+## End(Not run)
+
+
+
+cleanEx()
+nameEx("ajustar_mitscherlich")
+### * ajustar_mitscherlich
+
+flush(stderr()); flush(stdout())
+
+### Name: ajustar_mitscherlich
+### Title: Ajusta o Modelo de Mitscherlich
+### Aliases: ajustar_mitscherlich
+
+### ** Examples
+
+## Not run: 
+##D dose <- c(0, 50, 100, 150, 200, 250)
+##D resposta <- c(5, 12, 18, 22, 25, 27)
+##D 
+##D resultado <- ajustar_mitscherlich(
+##D   dose = dose,
+##D   Y = resposta,
+##D   verbose = TRUE
+##D )
+##D 
+##D print(resultado$resultados)
+##D print(resultado$equacoes)
+## End(Not run)
+
+
+
+
+cleanEx()
+nameEx("ajustar_potencial")
+### * ajustar_potencial
+
+flush(stderr()); flush(stdout())
+
+### Name: ajustar_potencial
+### Title: Ajusta o Modelo Potencial
+### Aliases: ajustar_potencial
+
+### ** Examples
+
+## Not run: 
+##D dose <- c(1, 10, 20, 50, 100, 200)
+##D resposta <- c(5, 12, 18, 28, 38, 50)
+##D 
+##D resultado <- ajustar_potencial(
+##D   dose = dose,
+##D   Y = resposta,
+##D   verbose = TRUE
+##D )
+##D 
+##D print(resultado$resultados)
+##D print(resultado$equacoes)
+## End(Not run)
+
+
+
+
+cleanEx()
+nameEx("ajustar_quadratico")
+### * ajustar_quadratico
+
+flush(stderr()); flush(stdout())
+
+### Name: ajustar_quadratico
+### Title: Ajusta o Modelo Quadrático
+### Aliases: ajustar_quadratico
+
+### ** Examples
+
+## Not run: 
+##D dose <- c(0, 50, 100, 150, 200, 250)
+##D resposta <- c(10, 18, 24, 28, 30, 31)
+##D 
+##D resultado <- ajustar_quadratico(
+##D   dose = dose,
+##D   Y = resposta,
+##D   verbose = TRUE
+##D )
+##D 
+##D print(resultado$resultados)
+##D print(resultado$equacoes)
+## End(Not run)
+
+
+
+
+cleanEx()
+nameEx("ajustar_raiz_quadratica")
+### * ajustar_raiz_quadratica
+
+flush(stderr()); flush(stdout())
+
+### Name: ajustar_raiz_quadratica
+### Title: Ajusta o Modelo Raiz Quadrático
+### Aliases: ajustar_raiz_quadratica
+
+### ** Examples
+
+## Not run: 
+##D dose <- c(0, 25, 50, 100, 150, 200)
+##D resposta <- c(10, 16, 20, 26, 30, 33)
+##D 
+##D resultado <- ajustar_raiz_quadratica(
+##D   dose = dose,
+##D   Y = resposta,
+##D   verbose = TRUE
+##D )
+##D 
+##D print(resultado$resultados)
+##D print(resultado$equacoes)
+## End(Not run)
+
+
+
+
+cleanEx()
+nameEx("analise_superficie_resposta")
+### * analise_superficie_resposta
+
+flush(stderr()); flush(stdout())
+
+### Name: analise_superficie_resposta
+### Title: Ajusta o Modelo Quadrático de Superfície de Resposta (2 Fatores)
+### Aliases: analise_superficie_resposta
+
+### ** Examples
+
+## Not run: 
+##D X1 <- c(-1, -1, 1, 1, 0, 0, 0, 0, 0)
+##D X2 <- c(-1, 1, -1, 1, 0, 0, 0, 0, 0)
+##D prod <- c(50, 60, 55, 70, 65, 65, 65, 66, 64)
+##D 
+##D resultado <- analise_superficie_resposta(
+##D   X1 = X1,
+##D   X2 = X2,
+##D   Producao = prod,
+##D   verbose = TRUE
+##D )
+##D 
+##D print(resultado$resultados)
+##D print(resultado$equacoes)
+##D # resultado$graficos$Producao  # Para visualizar a superfície 3D
+## End(Not run)
+
+
+
+
+cleanEx()
+nameEx("escolha_modelo_adequado")
+### * escolha_modelo_adequado
+
+flush(stderr()); flush(stdout())
+
+### Name: escolha_modelo_adequado
+### Title: Escolha do Modelo Adequado
+### Aliases: escolha_modelo_adequado
+
+### ** Examples
+
+## Not run: 
+##D dose <- c(0, 50, 100, 150, 200, 250)
+##D resposta <- c(10, 18, 24, 28, 30, 31)
+##D 
+##D # Ajusta diferentes modelos
+##D modelo_linear <- ajustar_linear(dose, Y = resposta, verbose = FALSE)
+##D modelo_quad <- ajustar_quadratico(dose, Y = resposta, verbose = FALSE)
+##D modelo_cubico <- ajustar_cubico(dose, Y = resposta, verbose = FALSE)
+##D 
+##D # Compara os modelos
+##D comparacao <- escolha_modelo_adequado(
+##D   modelo_linear,
+##D   modelo_quad,
+##D   modelo_cubico,
+##D   verbose = TRUE
+##D )
+##D 
+##D print(comparacao)
+## End(Not run)
+
+
+
+
+cleanEx()
+nameEx("otimizacao_insumos")
+### * otimizacao_insumos
+
+flush(stderr()); flush(stdout())
+
+### Name: otimizacao_insumos
+### Title: Otimização de Uso de Insumos (DMET e DMEE)
+### Aliases: otimizacao_insumos
+
+### ** Examples
+
+## Not run: 
+##D dose <- c(0, 50, 100, 150, 200, 250)
+##D resposta <- c(10, 18, 24, 28, 30, 31)
+##D 
+##D # Ajusta modelo quadrático
+##D modelo_quad <- ajustar_quadratico(dose, Y = resposta, verbose = FALSE)
+##D 
+##D # Calcula DMET e DMEE
+##D otimizacao <- otimizacao_insumos(
+##D   modelo_quadratico = modelo_quad,
+##D   preco_insumo = 10,
+##D   preco_produto = 50,
+##D   verbose = TRUE
+##D )
+##D 
+##D print(otimizacao)
+## End(Not run)
+
+
+
+
+cleanEx()
+nameEx("otimizacao_superficie_matrizes")
+### * otimizacao_superficie_matrizes
+
+flush(stderr()); flush(stdout())
+
+### Name: otimizacao_superficie_matrizes
+### Title: Otimização de Superfície de Respostas por Álgebra de Matrizes
+###   (DMEE)
+### Aliases: otimizacao_superficie_matrizes
+
+### ** Examples
+
+## Not run: 
+##D X1 <- c(-1, -1, 1, 1, 0, 0, 0, 0, 0)
+##D X2 <- c(-1, 1, -1, 1, 0, 0, 0, 0, 0)
+##D prod <- c(50, 60, 55, 70, 65, 65, 65, 66, 64)
+##D 
+##D # Ajusta modelo de superfície
+##D superficie <- analise_superficie_resposta(
+##D   X1 = X1, X2 = X2,
+##D   Producao = prod,
+##D   verbose = FALSE
+##D )
+##D 
+##D # Calcula DMEE
+##D otimizacao <- otimizacao_superficie_matrizes(
+##D   modelo_superficie = superficie,
+##D   preco_insumo_X1 = 20,
+##D   preco_insumo_X2 = 25,
+##D   preco_produto = 100,
+##D   verbose = TRUE
+##D )
+##D 
+##D print(otimizacao)
+## End(Not run)
+
+
+
+
+### * <FOOTER>
+###
+cleanEx()
+options(digits = 7L)
+base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
+grDevices::dev.off()
+###
+### Local variables: ***
+### mode: outline-minor ***
+### outline-regexp: "\\(> \\)?### [*]+" ***
+### End: ***
+quit('no')

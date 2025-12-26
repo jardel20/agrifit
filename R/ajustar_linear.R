@@ -11,6 +11,7 @@
 #'   \item{resultados}{Data frame: b0, b1, R², AIC, BIC, RMSE, p-valores, IC, etc. para cada resposta.}
 #'   \item{modelos}{Lista dos objetos `lm` para cada resposta.}
 #'   \item{equacoes}{Strings formatadas das equações.}
+#'   \item{graficos}{Lista de gráficos ggplot2 com observações e reta ajustada para cada resposta.}
 #' }
 #'
 #' @examples
@@ -28,11 +29,15 @@
 #' print(resultado$equacoes)
 #' }
 #'
-#' @importFrom stats lm coef pt qt
+#' @importFrom stats lm coef pt qt vcov
 #' @importFrom dplyr "%>%"
+#' @importFrom ggplot2 ggplot aes geom_point geom_line labs theme_minimal
 #'
 #' @export
 ajustar_linear <- function(dose, ..., verbose = TRUE) {
+  # Declaração de variáveis globais para R CMD check
+  Y <- tipo <- NULL
+
   # Funções auxiliares (copiadas da estrutura LRP)
   format_p_value <- function(p) {
     if (is.na(p)) {
@@ -54,15 +59,21 @@ ajustar_linear <- function(dose, ..., verbose = TRUE) {
   }
 
   format_coef_table <- function(model, df_res) {
-    # Extrai estatísticas do summary
-    lm_summary <- summary(model)
-    lm_coefs <- lm_summary$coefficients
+    # Extrai coeficientes diretamente do modelo para evitar warnings
+    coefs <- coef(model)
+    params <- names(coefs)
+    estimates <- as.numeric(coefs)
 
-    params <- rownames(lm_coefs)
-    estimates <- lm_coefs[, 1]
-    std_errors <- lm_coefs[, 2]
-    t_values <- lm_coefs[, 3]
-    p_values <- lm_coefs[, 4]
+    # Calcula erros padrão manualmente
+    var_cov <- suppressWarnings(vcov(model))
+    std_errors <- sqrt(diag(var_cov))
+
+    # Calcula t-values e p-values
+    t_values <- estimates / std_errors
+    p_values <- 2 * pt(-abs(t_values), df = df_res)
+
+    # Marca t-values muito grandes como Inf (indica ajuste perfeito)
+    t_values[abs(t_values) > 1e10] <- Inf
 
     # Intervalos de Confiança (95%)
     t_crit <- qt(0.975, df = df_res)
@@ -80,36 +91,40 @@ ajustar_linear <- function(dose, ..., verbose = TRUE) {
       IC_High = ic_high
     )
 
-    # Formatação
-    coef_df$Estimate <- sprintf("%.4f", coef_df$Estimate)
+    # Formatação com tratamento especial para valores muito grandes
+    coef_df$Estimate <- ifelse(
+      is.na(coef_df$Estimate) | is.infinite(coef_df$Estimate),
+      "NA",
+      sprintf("%.4f", coef_df$Estimate)
+    )
     coef_df$Std.Error <- ifelse(
-      is.na(coef_df$Std.Error),
+      is.na(coef_df$Std.Error) | is.infinite(coef_df$Std.Error),
       "NA",
       sprintf("%.4f", coef_df$Std.Error)
     )
     coef_df$t.value <- ifelse(
-      is.na(coef_df$t.value),
-      "NA",
-      sprintf("%.2f", coef_df$t.value)
+      is.na(coef_df$t.value) | is.infinite(coef_df$t.value),
+      "Inf",
+      sprintf("%.4f", coef_df$t.value)
     )
     coef_df$Pr.t <- sapply(coef_df$Pr.t, format_p_value)
     coef_df$IC_Low <- ifelse(
-      is.na(coef_df$IC_Low),
+      is.na(coef_df$IC_Low) | is.infinite(coef_df$IC_Low),
       "NA",
       sprintf("%.4f", coef_df$IC_Low)
     )
     coef_df$IC_High <- ifelse(
-      is.na(coef_df$IC_High),
+      is.na(coef_df$IC_High) | is.infinite(coef_df$IC_High),
       "NA",
       sprintf("%.4f", coef_df$IC_High)
     )
 
-    # Alinhamento e cabeçalho com melhor formatação
-    sep_line <- "─────────────────────────────────────────────────────────────────────────────────────"
-    header <- "Parameter         Estimate Std. Error  t value  Pr(>|t|)   IC 95% Low  IC 95% High"
+    # Alinhamento e cabeçalho com colunas mais amplas
+    sep_line <- "──────────────────────────────────────────────────────────────────────────────────────────────"
+    header <- "Parameter         Estimate Std. Error  t value   Pr(>|t|)   IC 95% Low  IC 95% High"
     lines <- apply(coef_df, 1, function(row) {
       sprintf(
-        "%-18s%-10s%-12s%-10s%-12s%-12s%-12s",
+        "%-18s%-12s%-12s%-10s%-12s%-12s%-12s",
         row[1],
         row[2],
         row[3],
@@ -121,7 +136,7 @@ ajustar_linear <- function(dose, ..., verbose = TRUE) {
     })
 
     # Adiciona a linha de significância
-    signif_line <- "───────────────────────────────────────────────────────────────────────────────────────
+    signif_line <- "──────────────────────────────────────────────────────────────────────────────────────────────
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1"
 
     # Junta tudo com separadores
@@ -151,20 +166,20 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1"
   resultados_all <- list()
   modelos_ajustados <- list()
   equacoes <- list()
+  graficos <- list()
 
   for (i in 1:n_respostas) {
     resposta <- respostas_list[[i]]
     nome_resposta <- nomes_respostas[i]
     data <- data.frame(X = dose, Y = resposta)
 
-    # Ajuste do Modelo
-    model_fit <- lm(Y ~ X, data = data)
-    model_summary <- summary(model_fit)
+    # Ajuste do Modelo (suprime warnings de ajustes perfeitos)
+    model_fit <- suppressWarnings(lm(Y ~ X, data = data))
 
     # Extração de Métricas
     SSE <- sum(model_fit$residuals^2)
     SST <- sum((resposta - mean(resposta))^2)
-    R2 <- model_summary$r.squared
+    R2 <- 1 - (SSE / SST)
     RMSE <- sqrt(SSE / n)
 
     # AIC e BIC (Log-Verossimilhança)
@@ -174,19 +189,26 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1"
     BIC_val <- -2 * logL + K * log(n)
 
     # Extração de Coeficientes e Estatísticas
-    coefs <- model_summary$coefficients
-    b0 <- coefs[1, 1]
-    b1 <- coefs[2, 1]
-    p_b0 <- coefs[1, 4]
-    p_b1 <- coefs[2, 4]
-    df_res <- model_summary$df[2]
+    coefs <- coef(model_fit)
+    b0 <- coefs[1]
+    b1 <- coefs[2]
+    df_res <- n - K
+
+    # Calcula p-valores manualmente
+    var_cov <- suppressWarnings(vcov(model_fit))
+    std_err_b0 <- sqrt(var_cov[1, 1])
+    std_err_b1 <- sqrt(var_cov[2, 2])
+    t_b0 <- b0 / std_err_b0
+    t_b1 <- b1 / std_err_b1
+    p_b0 <- 2 * pt(-abs(t_b0), df = df_res)
+    p_b1 <- 2 * pt(-abs(t_b1), df = df_res)
 
     # Intervalos de Confiança (IC)
     t_crit <- qt(0.975, df = df_res)
-    ic_b0_low <- b0 - t_crit * coefs[1, 2]
-    ic_b0_high <- b0 + t_crit * coefs[1, 2]
-    ic_b1_low <- b1 - t_crit * coefs[2, 2]
-    ic_b1_high <- b1 + t_crit * coefs[2, 2]
+    ic_b0_low <- b0 - t_crit * std_err_b0
+    ic_b0_high <- b0 + t_crit * std_err_b0
+    ic_b1_low <- b1 - t_crit * std_err_b1
+    ic_b1_high <- b1 + t_crit * std_err_b1
 
     # Armazenamento de Resultados
     resultado_df <- data.frame(
@@ -224,7 +246,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1"
       stringsAsFactors = FALSE
     )
 
-    equacao_str <- sprintf("%s: Ŷ = %.4f + %.4fX", nome_resposta, b0, b1)
+    equacao_str <- sprintf("%s: Y = %.4f + %.4fX", nome_resposta, b0, b1)
 
     resultados_all[[nome_resposta]] <- resultado_df
     modelos_ajustados[[nome_resposta]] <- model_fit
@@ -249,6 +271,47 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1"
       cat(sprintf("Graus de Liberdade Residual: %d\n", df_res))
       cat("\n")
     }
+
+    # --- Gráfico ggplot2 ---
+    dose_pred <- seq(min(dose), max(dose), length.out = 100)
+    Y_pred <- predict(model_fit, newdata = data.frame(X = dose_pred))
+
+    df_plot <- data.frame(
+      dose = c(dose, dose_pred),
+      Y = c(resposta, Y_pred),
+      tipo = c(
+        rep("Observado", length(dose)),
+        rep("Ajustado", length(dose_pred))
+      )
+    )
+
+    p <- ggplot2::ggplot(df_plot, ggplot2::aes(x = dose, y = Y, color = tipo)) +
+      ggplot2::geom_point(
+        data = data.frame(dose = dose, Y = resposta),
+        size = 3,
+        alpha = 0.7
+      ) +
+      ggplot2::geom_line(
+        data = data.frame(dose = dose_pred, Y = Y_pred),
+        linewidth = 1
+      ) +
+      ggplot2::labs(
+        title = sprintf("Ajuste Linear - %s", nome_resposta),
+        x = "Dose",
+        y = nome_resposta,
+        color = "Tipo",
+        subtitle = equacao_str,
+        caption = sprintf("R² = %.4f | RMSE = %.4f", R2, RMSE)
+      ) +
+      ggplot2::theme_minimal() +
+      ggplot2::theme(
+        legend.position = "top",
+        plot.title = ggplot2::element_text(face = "bold", size = 12),
+        plot.subtitle = ggplot2::element_text(size = 10, face = "italic")
+      )
+
+    graficos[[nome_resposta]] <- p
+    print(p)
   }
 
   resultado_df_final <- do.call(rbind, resultados_all)
@@ -256,6 +319,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1"
   return(list(
     resultados = resultado_df_final,
     modelos = modelos_ajustados,
-    equacoes = equacoes
+    equacoes = equacoes,
+    graficos = graficos
   ))
 }

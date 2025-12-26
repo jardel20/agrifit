@@ -1,6 +1,8 @@
 Package: agrifit
 Title: Nonlinear Model Fitting for Agricultural Experiments
 Version: 0.1.0
+Author: Jardel Fialho <jardelllfialho@gmail.com>
+Maintainer: Jardel Fialho <jardelllfialho@gmail.com>
 Authors@R: c(
     person(
       "Jardel", "Fialho",

@@ -19,6 +19,7 @@ Lista com:
 \item{resultados}{Data frame: b0, b1, b2, b3, R², AIC, BIC, RMSE, p-valores, IC, etc. para cada resposta.}
 \item{modelos}{Lista dos objetos \code{lm} para cada resposta.}
 \item{equacoes}{Strings formatadas das equações.}
+\item{graficos}{Lista de gráficos ggplot2 com observações e curva ajustada para cada resposta.}
 }
 }
 \description{

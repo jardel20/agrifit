@@ -1,0 +1,82 @@
+<!DOCTYPE html><html><head><title>R: Escolha do Modelo Adequado</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.3/dist/katex.min.css">
+<script>
+const macros = { "\\R": "\\textsf{R}", "\\mbox": "\\text", "\\code": "\\texttt"};
+function processMathHTML() {
+    var l = document.getElementsByClassName('reqn');
+    for (let e of l) { katex.render(e.textContent, e, { throwOnError: false, macros }); }
+    return;
+}</script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.15.3/dist/katex.min.js"
+    onload="processMathHTML();"></script>
+<link rel="stylesheet" type="text/css" href="R.css">
+</head><body><div class="container"><main>
+
+<table style="width: 100%;"><tr><td>escolha_modelo_adequado {agrifit}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Escolha do Modelo Adequado</h2>
+
+<h3>Description</h3>
+
+<p>Consolida e compara os resultados de diferentes modelos de regressão (Linear, Quadrático, etc.)
+com base em métricas de ajuste como AIC, BIC e R².
+</p>
+
+
+<h3>Usage</h3>
+
+<pre><code class='language-R'>escolha_modelo_adequado(..., verbose = TRUE)
+</code></pre>
+
+
+<h3>Arguments</h3>
+
+<table role = "presentation">
+<tr><td><code id="...">...</code></td>
+<td>
+<p>Resultados de ajuste de modelos (listas retornadas pelas funções <code style="white-space: pre;">&#8288;ajustar_*&#8288;</code>).</p>
+</td></tr>
+<tr><td><code id="verbose">verbose</code></td>
+<td>
+<p>Lógico. Gera prints detalhados (padrão: TRUE).</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>Data frame consolidado com os resultados de AIC, BIC e R² para todos os modelos e respostas.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre><code class='language-R'>## Not run: 
+dose &lt;- c(0, 50, 100, 150, 200, 250)
+resposta &lt;- c(10, 18, 24, 28, 30, 31)
+
+# Ajusta diferentes modelos
+modelo_linear &lt;- ajustar_linear(dose, Y = resposta, verbose = FALSE)
+modelo_quad &lt;- ajustar_quadratico(dose, Y = resposta, verbose = FALSE)
+modelo_cubico &lt;- ajustar_cubico(dose, Y = resposta, verbose = FALSE)
+
+# Compara os modelos
+comparacao &lt;- escolha_modelo_adequado(
+  modelo_linear,
+  modelo_quad,
+  modelo_cubico,
+  verbose = TRUE
+)
+
+print(comparacao)
+
+## End(Not run)
+
+</code></pre>
+
+<hr><div style="text-align: center;">[Package <em>agrifit</em> version 0.1.0 <a href="00Index.html">Index</a>]</div></main>
+
+</div>
+</body></html>

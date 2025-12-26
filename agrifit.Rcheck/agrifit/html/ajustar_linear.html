@@ -1,0 +1,89 @@
+<!DOCTYPE html><html><head><title>R: Ajusta o Modelo Linear Simples</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.3/dist/katex.min.css">
+<script>
+const macros = { "\\R": "\\textsf{R}", "\\mbox": "\\text", "\\code": "\\texttt"};
+function processMathHTML() {
+    var l = document.getElementsByClassName('reqn');
+    for (let e of l) { katex.render(e.textContent, e, { throwOnError: false, macros }); }
+    return;
+}</script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.15.3/dist/katex.min.js"
+    onload="processMathHTML();"></script>
+<link rel="stylesheet" type="text/css" href="R.css">
+</head><body><div class="container"><main>
+
+<table style="width: 100%;"><tr><td>ajustar_linear {agrifit}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Ajusta o Modelo Linear Simples</h2>
+
+<h3>Description</h3>
+
+<p>Implementa o ajuste do modelo de regressão linear simples: Y = b0 + b1 * X.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre><code class='language-R'>ajustar_linear(dose, ..., verbose = TRUE)
+</code></pre>
+
+
+<h3>Arguments</h3>
+
+<table role = "presentation">
+<tr><td><code id="dose">dose</code></td>
+<td>
+<p>Vetor numérico com níveis do fator (X).</p>
+</td></tr>
+<tr><td><code id="...">...</code></td>
+<td>
+<p>Uma ou mais respostas (vetores Y nomeados). Exemplo: <code>MS = materia_seca</code>.</p>
+</td></tr>
+<tr><td><code id="verbose">verbose</code></td>
+<td>
+<p>Lógico. Gera prints detalhados (padrão: TRUE).</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>Lista com:
+</p>
+
+<dl>
+<dt>resultados</dt><dd><p>Data frame: b0, b1, R², AIC, BIC, RMSE, p-valores, IC, etc. para cada resposta.</p>
+</dd>
+<dt>modelos</dt><dd><p>Lista dos objetos <code>lm</code> para cada resposta.</p>
+</dd>
+<dt>equacoes</dt><dd><p>Strings formatadas das equações.</p>
+</dd>
+</dl>
+
+
+
+<h3>Examples</h3>
+
+<pre><code class='language-R'>## Not run: 
+dose &lt;- c(0, 50, 100, 150, 200, 250)
+resposta &lt;- c(10, 15, 20, 25, 30, 35)
+
+resultado &lt;- ajustar_linear(
+  dose = dose,
+  Y = resposta,
+  verbose = TRUE
+)
+
+print(resultado$resultados)
+print(resultado$equacoes)
+
+## End(Not run)
+
+</code></pre>
+
+<hr><div style="text-align: center;">[Package <em>agrifit</em> version 0.1.0 <a href="00Index.html">Index</a>]</div></main>
+
+</div>
+</body></html>

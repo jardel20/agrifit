@@ -1,0 +1,19 @@
+ajustar_cubico          Ajusta o Modelo Cúbico
+ajustar_exponencial     Ajusta o Modelo Exponencial
+ajustar_linear          Ajusta o Modelo Linear Simples
+ajustar_lrp             Ajusta o Modelo Linear Descontínuo (LRP)
+ajustar_lrp2            Ajusta o Modelo Linear Descontínuo (LRP)
+ajustar_mitscherlich    Ajusta o Modelo de Mitscherlich
+ajustar_potencial       Ajusta o Modelo Potencial
+ajustar_quadratico      Ajusta o Modelo Quadrático
+ajustar_raiz_quadratica
+                        Ajusta o Modelo Raiz Quadrático
+analise_superficie_resposta
+                        Ajusta o Modelo Quadrático de Superfície de
+                        Resposta (2 Fatores)
+escolha_modelo_adequado
+                        Escolha do Modelo Adequado
+otimizacao_insumos      Otimização de Uso de Insumos (DMET e DMEE)
+otimizacao_superficie_matrizes
+                        Otimização de Superfície de Respostas por
+                        Álgebra de Matrizes (DMEE)
