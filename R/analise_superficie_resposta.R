@@ -18,7 +18,7 @@
 #'
 #' @importFrom stats lm coef pt qt
 #' @importFrom dplyr "%>%"
-#' @importFrom plotly plot_ly surface layout
+#' @importFrom plotly plot_ly add_surface layout
 #'
 #' @examples
 #' \dontrun{
