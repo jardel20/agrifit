@@ -30,9 +30,13 @@
 #'
 #' @importFrom stats lm coef pt qt
 #' @importFrom dplyr "%>%"
+#' @importFrom ggplot2 ggplot aes geom_point geom_line labs theme_minimal
 #'
 #' @export
 ajustar_quadratico <- function(dose, ..., verbose = TRUE) {
+  # Evitar aviso de "no visible binding"
+  tipo <- NULL
+
   # Funções auxiliares (copiadas da estrutura LRP)
   format_p_value <- function(p) {
     if (is.na(p)) {
@@ -271,9 +275,63 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1"
 
   resultado_df_final <- do.call(rbind, resultados_all)
 
+  # Criar gráficos para cada resposta
+  graficos <- list()
+
+  for (i in 1:n_respostas) {
+    nome_resp <- nomes_respostas[i]
+    model <- modelos_ajustados[[nome_resp]]
+
+    if (!is.null(model)) {
+      # Criar sequência de dose para a curva ajustada
+      dose_seq <- seq(min(dose), max(dose), length.out = 100)
+      Y_pred <- predict(
+        model,
+        newdata = data.frame(X = dose_seq, X2 = dose_seq^2)
+      )
+
+      # Data frame para o gráfico
+      df_plot <- data.frame(
+        dose = dose_seq,
+        Y_pred = Y_pred,
+        tipo = "Ajustado"
+      )
+
+      df_obs <- data.frame(
+        dose = dose,
+        Y_pred = respostas_list[[i]],
+        tipo = "Observado"
+      )
+
+      df_grafico <- rbind(df_plot, df_obs)
+
+      # Criar gráfico com ggplot2
+      p <- ggplot2::ggplot(
+        df_grafico,
+        ggplot2::aes(x = dose, y = Y_pred, color = tipo)
+      ) +
+        ggplot2::geom_point(data = df_obs, size = 3, alpha = 0.7) +
+        ggplot2::geom_line(data = df_plot, size = 1) +
+        ggplot2::labs(
+          title = sprintf("Ajuste Quadrático - %s", nome_resp),
+          x = "Dose",
+          y = nome_resp,
+          color = "Tipo",
+          subtitle = equacoes[[i]]
+        ) +
+        ggplot2::theme_minimal() +
+        ggplot2::theme(legend.position = "top")
+
+      graficos[[nome_resp]] <- p
+      print(p)
+    }
+  }
+
   return(list(
     resultados = resultado_df_final,
     modelos = modelos_ajustados,
-    equacoes = equacoes
+    equacoes = equacoes,
+    graficos = graficos,
+    dados_originais = list(dose = dose, respostas = respostas_list)
   ))
 }

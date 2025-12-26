@@ -86,17 +86,42 @@ analise_superficie_resposta <- function(X1, X2, ..., verbose = TRUE) {
 
     # Formatação
     coef_df$Estimate <- sprintf("%.4f", coef_df$Estimate)
-    coef_df$Std.Error <- ifelse(is.na(coef_df$Std.Error), "NA", sprintf("%.4f", coef_df$Std.Error))
-    coef_df$t.value <- ifelse(is.na(coef_df$t.value), "NA", sprintf("%.2f", coef_df$t.value))
+    coef_df$Std.Error <- ifelse(
+      is.na(coef_df$Std.Error),
+      "NA",
+      sprintf("%.4f", coef_df$Std.Error)
+    )
+    coef_df$t.value <- ifelse(
+      is.na(coef_df$t.value),
+      "NA",
+      sprintf("%.2f", coef_df$t.value)
+    )
     coef_df$Pr.t <- sapply(coef_df$Pr.t, format_p_value)
-    coef_df$IC_Low <- ifelse(is.na(coef_df$IC_Low), "NA", sprintf("%.4f", coef_df$IC_Low))
-    coef_df$IC_High <- ifelse(is.na(coef_df$IC_High), "NA", sprintf("%.4f", coef_df$IC_High))
+    coef_df$IC_Low <- ifelse(
+      is.na(coef_df$IC_Low),
+      "NA",
+      sprintf("%.4f", coef_df$IC_Low)
+    )
+    coef_df$IC_High <- ifelse(
+      is.na(coef_df$IC_High),
+      "NA",
+      sprintf("%.4f", coef_df$IC_High)
+    )
 
     # Alinhamento e cabeçalho
     sep_line <- "──────────────────────────────────────────────────────────────────────────────────"
     header <- "Parameter         Estimate Std. Error  t value  Pr(>|t|)   IC 95% Low  IC 95% High"
     lines <- apply(coef_df, 1, function(row) {
-      sprintf("%-18s%-10s%-12s%-10s%-12s%-12s%-12s", row[1], row[2], row[3], row[4], row[5], row[6], row[7])
+      sprintf(
+        "%-18s%-10s%-12s%-10s%-12s%-12s%-12s",
+        row[1],
+        row[2],
+        row[3],
+        row[4],
+        row[5],
+        row[6],
+        row[7]
+      )
     })
 
     # Adiciona a linha de significância
@@ -124,7 +149,11 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
   n <- length(X1)
 
   # O modelo quadrático completo tem 6 parâmetros. Requer no mínimo 7 pontos.
-  if (n < 7) stop("O modelo de Superfície de Resposta (Quadrático Completo) requer no mínimo 7 pontos de dose.")
+  if (n < 7) {
+    stop(
+      "O modelo de Superfície de Resposta (Quadrático Completo) requer no mínimo 7 pontos de dose."
+    )
+  }
 
   resultados_all <- list()
   modelos_ajustados <- list()
@@ -160,11 +189,35 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
     b11 <- coefs[4] # I(X1^2)
     b22 <- coefs[5] # I(X2^2)
     b12 <- coefs[6] # X1:X2
+
+    # Substituir NA por 0 para evitar problemas no cálculo de ponto estacionário
+    if (is.na(b22)) {
+      b22 <- 0
+    }
+    if (is.na(b12)) {
+      b12 <- 0
+    }
+    if (is.na(b11)) {
+      b11 <- 0
+    }
+    if (is.na(b2)) {
+      b2 <- 0
+    }
+    if (is.na(b1)) {
+      b1 <- 0
+    }
+
     df_res <- model_summary$df[2]
 
     # --- Cálculo do Ponto Estacionário (Máximo/Mínimo/Sela) ---
     # Gradiente: dY/dX1 = b1 + 2*b11*X1 + b12*X2 = 0
     # Gradiente: dY/dX2 = b2 + 2*b22*X2 + b12*X1 = 0
+
+    # Inicializar variáveis
+    X1s <- NA
+    X2s <- NA
+    Y_estacionario <- NA
+    classificacao <- "Não Calculável"
 
     # Matriz H (Hessiana) para o sistema de equações
     H <- matrix(c(2 * b11, b12, b12, 2 * b22), nrow = 2, byrow = TRUE)
@@ -173,51 +226,111 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
     B <- matrix(c(-b1, -b2), nrow = 2)
 
     # Ponto Estacionário (X1s, X2s)
-    tryCatch(
+    resultado_estacionario <- tryCatch(
       {
-        X_estacionario <- solve(H, B)
-        X1s <- X_estacionario[1]
-        X2s <- X_estacionario[2]
-        Y_estacionario <- b0 + b1 * X1s + b2 * X2s + b11 * X1s^2 + b22 * X2s^2 + b12 * X1s * X2s
-
-        # Classificação (Eigenvalues da Matriz H)
-        eigen_values <- eigen(H)$values
-
-        if (all(eigen_values < 0)) {
-          classificacao <- "Máximo"
-        } else if (all(eigen_values > 0)) {
-          classificacao <- "Mínimo"
+        # Verificar se a matriz H é invertível
+        det_H <- det(H)
+        if (abs(det_H) < 1e-6) {
+          list(
+            X1s = NA,
+            X2s = NA,
+            Y_estacionario = NA,
+            classificacao = "Não Calculável"
+          )
         } else {
-          classificacao <- "Sela"
+          X_estacionario <- solve(H, B)
+          X1s_temp <- X_estacionario[1]
+          X2s_temp <- X_estacionario[2]
+          Y_estacionario_temp <- b0 +
+            b1 * X1s_temp +
+            b2 * X2s_temp +
+            b11 * X1s_temp^2 +
+            b22 * X2s_temp^2 +
+            b12 * X1s_temp * X2s_temp
+
+          # Classificação (Eigenvalues da Matriz H)
+          eigen_values <- eigen(H)$values
+
+          if (all(eigen_values < 0)) {
+            classificacao_temp <- "Máximo"
+          } else if (all(eigen_values > 0)) {
+            classificacao_temp <- "Mínimo"
+          } else {
+            classificacao_temp <- "Sela"
+          }
+
+          list(
+            X1s = X1s_temp,
+            X2s = X2s_temp,
+            Y_estacionario = Y_estacionario_temp,
+            classificacao = classificacao_temp
+          )
         }
       },
       error = function(e) {
-        X1s <- NA
-        X2s <- NA
-        Y_estacionario <- NA
-        classificacao <- "Não Calculável"
+        list(
+          X1s = NA,
+          X2s = NA,
+          Y_estacionario = NA,
+          classificacao = "Não Calculável"
+        )
       }
     )
+
+    X1s <- resultado_estacionario$X1s
+    X2s <- resultado_estacionario$X2s
+    Y_estacionario <- resultado_estacionario$Y_estacionario
+    classificacao <- resultado_estacionario$classificacao
 
     # Armazenamento de Resultados
     resultado_df <- data.frame(
       resposta = nome_resposta,
       parametro = c(
-        "b0_intercepto", "b1_linear_X1", "b2_linear_X2", "b11_quad_X1", "b22_quad_X2", "b12_interacao",
-        "R2", "RMSE", "AIC", "BIC", "df_residual",
-        "X1_estacionario", "X2_estacionario", "Y_estacionario", "classificacao_ponto"
+        "b0_intercepto",
+        "b1_linear_X1",
+        "b2_linear_X2",
+        "b11_quad_X1",
+        "b22_quad_X2",
+        "b12_interacao",
+        "R2",
+        "RMSE",
+        "AIC",
+        "BIC",
+        "df_residual",
+        "X1_estacionario",
+        "X2_estacionario",
+        "Y_estacionario",
+        "classificacao_ponto"
       ),
       valor = c(
-        b0, b1, b2, b11, b22, b12,
-        R2, RMSE, AIC_val, BIC_val, df_res,
-        X1s, X2s, Y_estacionario, classificacao
+        b0,
+        b1,
+        b2,
+        b11,
+        b22,
+        b12,
+        R2,
+        RMSE,
+        AIC_val,
+        BIC_val,
+        df_res,
+        X1s,
+        X2s,
+        Y_estacionario,
+        classificacao
       ),
       stringsAsFactors = FALSE
     )
 
     equacao_str <- sprintf(
       "%s: Ŷ = %.4f + %.4fX1 + %.4fX2 + %.4fX1² + %.4fX2² + %.4fX1X2",
-      nome_resposta, b0, b1, b2, b11, b22, b12
+      nome_resposta,
+      b0,
+      b1,
+      b2,
+      b11, # Já substituído NA por 0
+      b22, # Já substituído NA por 0
+      b12
     )
 
     resultados_all[[nome_resposta]] <- resultado_df
@@ -226,9 +339,18 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
 
     # Impressão Verbosa
     if (verbose) {
-      cat(sprintf("------------------------ %s ------------------------\n", nome_resposta))
+      cat(sprintf(
+        "------------------------ %s ------------------------\n",
+        nome_resposta
+      ))
       cat(sprintf("Modelo: Superfície de Resposta (Quadrático Completo)\n"))
-      cat(sprintf("R²: %.4f | RMSE: %.4f | AIC: %.2f | BIC: %.2f\n", R2, RMSE, AIC_val, BIC_val))
+      cat(sprintf(
+        "R²: %.4f | RMSE: %.4f | AIC: %.2f | BIC: %.2f\n",
+        R2,
+        RMSE,
+        AIC_val,
+        BIC_val
+      ))
       cat("Equação:\n", equacao_str, "\n\n")
       cat(format_coef_table(model_fit, df_res), "\n")
       cat(sprintf("Graus de Liberdade Residual: %d\n", df_res))

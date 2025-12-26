@@ -83,11 +83,28 @@ otimizacao_superficie_matrizes <- function(
     }
 
     # Coeficientes
-    b1 <- coefs_resp$b1_linear_X1
-    b2 <- coefs_resp$b2_linear_X2
-    b11 <- coefs_resp$b11_quad_X1
-    b22 <- coefs_resp$b22_quad_X2
-    b12 <- coefs_resp$b12_interacao
+    b1 <- as.numeric(coefs_resp$b1_linear_X1)
+    b2 <- as.numeric(coefs_resp$b2_linear_X2)
+    b11 <- as.numeric(coefs_resp$b11_quad_X1)
+    b22 <- as.numeric(coefs_resp$b22_quad_X2)
+    b12 <- as.numeric(coefs_resp$b12_interacao)
+
+    # Substituir NA por 0 para cálculos
+    if (is.na(b1)) {
+      b1 <- 0
+    }
+    if (is.na(b2)) {
+      b2 <- 0
+    }
+    if (is.na(b11)) {
+      b11 <- 0
+    }
+    if (is.na(b22)) {
+      b22 <- 0
+    }
+    if (is.na(b12)) {
+      b12 <- 0
+    }
 
     # Relação de Preços (Custo Marginal / Receita Marginal)
     R1 <- preco_insumo_X1 / preco_produto
@@ -109,39 +126,49 @@ otimizacao_superficie_matrizes <- function(
     B <- matrix(c(R1 - b1, R2 - b2), nrow = 2)
 
     # Ponto de Máximo Econômico (X1_DMEE, X2_DMEE)
-    tryCatch(
+    resultado_dmee <- tryCatch(
       {
         X_dmee <- solve(A, B)
-        X1_dmee <- X_dmee[1]
-        X2_dmee <- X_dmee[2]
+        X1_dmee_temp <- X_dmee[1]
+        X2_dmee_temp <- X_dmee[2]
 
         # Y_DMEE (Resposta no ponto de DMEE)
-        Y_dmee <- coefs_resp$b0_intercepto +
-          b1 * X1_dmee +
-          b2 * X2_dmee +
-          b11 * X1_dmee^2 +
-          b22 * X2_dmee^2 +
-          b12 * X1_dmee * X2_dmee
+        b0_val <- as.numeric(coefs_resp$b0_intercepto)
+        Y_dmee_temp <- b0_val +
+          b1 * X1_dmee_temp +
+          b2 * X2_dmee_temp +
+          b11 * X1_dmee_temp^2 +
+          b22 * X2_dmee_temp^2 +
+          b12 * X1_dmee_temp * X2_dmee_temp
 
-        aviso <- "DMEE calculada com sucesso."
+        aviso_temp <- "DMEE calculada com sucesso."
 
         # Ajuste para doses negativas (se a DMEE for negativa, a dose recomendada é 0)
-        if (X1_dmee < 0) {
-          X1_dmee <- 0
-          aviso <- paste(aviso, "X1_DMEE ajustado para 0.")
+        if (X1_dmee_temp < 0) {
+          X1_dmee_temp <- 0
+          aviso_temp <- paste(aviso_temp, "X1_DMEE ajustado para 0.")
         }
-        if (X2_dmee < 0) {
-          X2_dmee <- 0
-          aviso <- paste(aviso, "X2_DMEE ajustado para 0.")
+        if (X2_dmee_temp < 0) {
+          X2_dmee_temp <- 0
+          aviso_temp <- paste(aviso_temp, "X2_DMEE ajustado para 0.")
         }
+
+        list(
+          X1_DMEE = X1_dmee_temp,
+          X2_DMEE = X2_dmee_temp,
+          Y_DMEE = Y_dmee_temp,
+          Aviso = aviso_temp
+        )
       },
       error = function(e) {
-        X1_dmee <- NA
-        X2_dmee <- NA
-        Y_dmee <- NA
-        aviso <- paste(
-          "Cálculo da DMEE falhou (Matriz Singular ou Erro):",
-          e$message
+        list(
+          X1_DMEE = NA,
+          X2_DMEE = NA,
+          Y_DMEE = NA,
+          Aviso = paste(
+            "Cálculo da DMEE falhou (Matriz Singular ou Erro):",
+            e$message
+          )
         )
       }
     )
@@ -149,12 +176,12 @@ otimizacao_superficie_matrizes <- function(
     # Armazenamento
     resultados_otimizacao[[resp]] <- data.frame(
       resposta = resp,
-      X1_DMEE = X1_dmee,
-      X2_DMEE = X2_dmee,
-      Y_DMEE = Y_dmee,
+      X1_DMEE = resultado_dmee$X1_DMEE,
+      X2_DMEE = resultado_dmee$X2_DMEE,
+      Y_DMEE = resultado_dmee$Y_DMEE,
       Relacao_Precos_X1 = R1,
       Relacao_Precos_X2 = R2,
-      Aviso = aviso
+      Aviso = resultado_dmee$Aviso
     )
   }
 
@@ -165,8 +192,38 @@ otimizacao_superficie_matrizes <- function(
     cat("\n=== Otimização de Superfície de Respostas (DMEE por Matrizes) ===\n")
     cat(sprintf("Relação de Preços (X1/Produto): %.4f\n", R1))
     cat(sprintf("Relação de Preços (X2/Produto): %.4f\n\n", R2))
-    print(df_final)
+
+    # Formatação da tabela similar à de ajuste de modelos
+    sep_line <- "──────────────────────────────────────────────────────────────────────────────────────"
+    header <- "Resposta     X1_DMEE     X2_DMEE     Y_DMEE      Relação_Preços_X1  Relação_Preços_X2"
+
+    cat(sep_line, "\n")
+    cat(header, "\n")
+    cat(sep_line, "\n")
+
+    # Formatação das linhas
+    for (i in 1:nrow(df_final)) {
+      row <- df_final[i, ]
+      linha <- sprintf(
+        "%-12s%-12s%-12s%-12s%-20s%-20s",
+        row$resposta,
+        sprintf("%.4f", row$X1_DMEE),
+        sprintf("%.4f", row$X2_DMEE),
+        sprintf("%.4f", row$Y_DMEE),
+        sprintf("%.4f", row$Relacao_Precos_X1),
+        sprintf("%.4f", row$Relacao_Precos_X2)
+      )
+      cat(linha, "\n")
+    }
+
+    cat(sep_line, "\n\n")
+
+    # Observações com os avisos
+    cat("Observações:\n")
+    for (i in 1:nrow(df_final)) {
+      cat(sprintf("  %s: %s\n", df_final$resposta[i], df_final$Aviso[i]))
+    }
   }
 
-  return(df_final)
+  invisible(df_final)
 }

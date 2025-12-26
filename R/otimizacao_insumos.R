@@ -11,6 +11,7 @@
 #' @return Data frame com os resultados de otimização (DMET, Y_max, DMEE, Y_DMEE) para cada resposta.
 #'
 #' @importFrom dplyr "%>%"
+#' @importFrom ggplot2 ggplot aes geom_line geom_point geom_vline labs theme_minimal
 #'
 #' @examples
 #' \dontrun{
@@ -39,7 +40,7 @@ otimizacao_insumos <- function(
   verbose = TRUE
 ) {
   # Evitar aviso de "no visible binding"
-  resposta <- parametro <- valor <- NULL
+  resposta <- parametro <- valor <- dose <- Y <- NULL
 
   if (
     !is.list(modelo_quadratico) || !("resultados" %in% names(modelo_quadratico))
@@ -141,8 +142,114 @@ otimizacao_insumos <- function(
   if (verbose) {
     cat("\n=== Otimização de Uso de Insumos (DMET e DMEE) ===\n")
     cat(sprintf("Relação de Preços (Insumo/Produto): %.4f\n\n", relacao_precos))
-    print(df_final)
+
+    # Formatação de saída em tabela
+    sep_line <- "───────────────────────────────────────────────────────────────────────"
+
+    header <- "Resposta     DMET        Y_max       DMEE        Y_DMEE      Relação"
+
+    # Prepara dados formatados
+    output_rows <- apply(df_final, 1, function(row) {
+      sprintf(
+        "%-12s%-12s%-12s%-12s%-12s%-12s",
+        row[1], # resposta
+        sprintf("%.4f", as.numeric(row[2])), # DMET
+        sprintf("%.4f", as.numeric(row[3])), # Y_max
+        sprintf("%.4f", as.numeric(row[4])), # DMEE
+        sprintf("%.4f", as.numeric(row[5])), # Y_DMEE
+        sprintf("%.4f", as.numeric(row[6])) # Relação_Precos
+      )
+    })
+
+    cat(sep_line, "\n")
+    cat(header, "\n")
+    cat(sep_line, "\n")
+    cat(paste(output_rows, collapse = "\n"), "\n")
+    cat(sep_line, "\n")
+
+    # Aviso/Observações
+    cat("\nObservações:\n")
+    for (i in seq_len(nrow(df_final))) {
+      cat(sprintf(
+        "%s: %s | %s\n",
+        df_final$resposta[i],
+        df_final$Aviso_DMET[i],
+        df_final$Aviso_DMEE[i]
+      ))
+    }
+
+    # Criar gráfico de otimização
+    cat("\n")
+
+    # Extrair coeficientes do modelo para gerar a curva
+    coefs_resp <- modelo_quadratico$resultados %>%
+      dplyr::filter(resposta == df_final$resposta[1]) %>%
+      tidyr::pivot_wider(names_from = parametro, values_from = valor)
+
+    b0 <- coefs_resp$b0_intercepto
+    b1 <- coefs_resp$b1_linear
+    b2 <- coefs_resp$b2_quadratico
+
+    # Gerar sequência de doses para a curva
+    dose_range <- seq(0, df_final$DMET[1] * 1.2, length.out = 200)
+    Y_curve <- b0 + b1 * dose_range + b2 * dose_range^2
+
+    df_curva <- data.frame(
+      dose = dose_range,
+      Y = Y_curve,
+      tipo = "Resposta"
+    )
+
+    # Criar gráfico
+    p_otm <- ggplot2::ggplot(df_curva, ggplot2::aes(x = dose, y = Y)) +
+      ggplot2::geom_line(size = 1, color = "blue") +
+      ggplot2::geom_point(
+        data = data.frame(dose = df_final$DMET[1], Y = df_final$Y_max[1]),
+        ggplot2::aes(x = dose, y = Y),
+        color = "red",
+        size = 4,
+        shape = 17,
+        inherit.aes = FALSE
+      ) +
+      ggplot2::geom_vline(
+        xintercept = df_final$DMET[1],
+        linetype = "dashed",
+        color = "red",
+        alpha = 0.5
+      ) +
+      ggplot2::geom_point(
+        data = data.frame(dose = df_final$DMEE[1], Y = df_final$Y_DMEE[1]),
+        ggplot2::aes(x = dose, y = Y),
+        color = "green",
+        size = 4,
+        shape = 15,
+        inherit.aes = FALSE
+      ) +
+      ggplot2::geom_vline(
+        xintercept = df_final$DMEE[1],
+        linetype = "dotted",
+        color = "green",
+        alpha = 0.5
+      ) +
+      ggplot2::labs(
+        title = "Otimização de Uso de Insumos - DMET vs DMEE",
+        subtitle = sprintf("Relação de Preços: %.4f", relacao_precos),
+        x = "Dose",
+        y = "Resposta (Y)",
+        caption = "Triângulo Vermelho = DMET (Máxima Eficiência Técnica)\nQuadrado Verde = DMEE (Máxima Eficiência Econômica)"
+      ) +
+      ggplot2::theme_minimal() +
+      ggplot2::theme(
+        legend.position = "top",
+        plot.caption = ggplot2::element_text(hjust = 0, size = 9)
+      )
+
+    print(p_otm)
+    grafico_otimizacao <- p_otm
   }
 
-  return(df_final)
+  return(list(
+    resultados = df_final,
+    grafico = grafico_otimizacao
+  ))
 }
