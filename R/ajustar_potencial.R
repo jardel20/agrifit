@@ -139,12 +139,10 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
       sep_line,
       paste(
         lines,
-        collapse = "
-"
+        collapse = "\n"
       ),
       signif_line,
-      sep = "
-"
+      sep = "\n"
     )
 
     return(output)
@@ -253,7 +251,7 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
           stringsAsFactors = FALSE
         )
 
-        equacao_str <- sprintf("%s: Y = %.4f * X^%.4f", nome_resposta, a, b)
+        equacao_str <- sprintf("%s: Ŷ = %.4f * X^%.4f", nome_resposta, a, b)
 
         resultados_all[[nome_resposta]] <- resultado_df
         modelos_ajustados[[nome_resposta]] <- model_fit

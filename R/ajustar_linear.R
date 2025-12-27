@@ -153,7 +153,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1"
     return(output)
   }
 
-  # --- Lógica Principal ---
+  # Lógica Principal
   respostas_list <- list(...)
   n_respostas <- length(respostas_list)
   nomes_respostas <- names(respostas_list)
@@ -176,39 +176,36 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1"
     # Ajuste do Modelo (suprime warnings de ajustes perfeitos)
     model_fit <- suppressWarnings(lm(Y ~ X, data = data))
 
-    # Extração de Métricas
+    # EXTRAÇÃO dos coeficientes
+    sum_model <- summary(model_fit)
+    coefs_table <- sum_model$coefficients
+    R2 <- sum_model$r.squared
+    df_res <- sum_model$df[2]
     SSE <- sum(model_fit$residuals^2)
-    SST <- sum((resposta - mean(resposta))^2)
-    R2 <- 1 - (SSE / SST)
+    n <- length(resposta)
     RMSE <- sqrt(SSE / n)
 
-    # AIC e BIC (Log-Verossimilhança)
-    K <- length(coef(model_fit)) # 2 parâmetros (b0, b1)
-    logL <- -(n / 2) * (log(2 * pi) + log(SSE / n) + 1)
-    AIC_val <- -2 * logL + 2 * K
-    BIC_val <- -2 * logL + K * log(n)
+    # AIC/BIC NATIVOS
+    AIC_val <- AIC(model_fit)
+    BIC_val <- BIC(model_fit)
 
-    # Extração de Coeficientes e Estatísticas
-    coefs <- coef(model_fit)
-    b0 <- coefs[1]
-    b1 <- coefs[2]
-    df_res <- n - K
+    # Coeficientes do summary()
+    b0 <- coefs_table[1, 1]
+    b1 <- coefs_table[2, 1]
+    se_b0 <- coefs_table[1, 2]
+    se_b1 <- coefs_table[2, 2]
+    t_b0 <- coefs_table[1, 3]
+    t_b1 <- coefs_table[2, 3]
+    p_b0 <- coefs_table[1, 4]
+    p_b1 <- coefs_table[2, 4]
 
-    # Calcula p-valores manualmente
-    var_cov <- suppressWarnings(vcov(model_fit))
-    std_err_b0 <- sqrt(var_cov[1, 1])
-    std_err_b1 <- sqrt(var_cov[2, 2])
-    t_b0 <- b0 / std_err_b0
-    t_b1 <- b1 / std_err_b1
-    p_b0 <- 2 * pt(-abs(t_b0), df = df_res)
-    p_b1 <- 2 * pt(-abs(t_b1), df = df_res)
-
-    # Intervalos de Confiança (IC)
+    # ICs nativos (mais preciso)
     t_crit <- qt(0.975, df = df_res)
-    ic_b0_low <- b0 - t_crit * std_err_b0
-    ic_b0_high <- b0 + t_crit * std_err_b0
-    ic_b1_low <- b1 - t_crit * std_err_b1
-    ic_b1_high <- b1 + t_crit * std_err_b1
+    ic_b0_low <- b0 - t_crit * se_b0
+    ic_b0_high <- b0 + t_crit * se_b0
+    ic_b1_low <- b1 - t_crit * se_b1
+    ic_b1_high <- b1 + t_crit * se_b1
+
 
     # Armazenamento de Resultados
     resultado_df <- data.frame(
@@ -246,7 +243,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1"
       stringsAsFactors = FALSE
     )
 
-    equacao_str <- sprintf("%s: Y = %.4f + %.4fX", nome_resposta, b0, b1)
+    equacao_str <- sprintf("%s: Ŷ = %.4f + %.4fX", nome_resposta, b0, b1)
 
     resultados_all[[nome_resposta]] <- resultado_df
     modelos_ajustados[[nome_resposta]] <- model_fit

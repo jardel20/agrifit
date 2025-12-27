@@ -126,7 +126,7 @@ ajustar_cubico <- function(dose, ..., verbose = TRUE) {
     })
 
     # Adiciona a linha de significância
-    signif_line <- "───────────────────────────────────────────────────────────────────────────────────────
+    signif_line <- "─────────────────────────────────────────────────────────────────────────────────────
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1"
 
     # Junta tudo com separadores
@@ -143,7 +143,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1"
     return(output)
   }
 
-  # --- Lógica Principal ---
+  # Lógica Principal
   respostas_list <- list(...)
   n_respostas <- length(respostas_list)
   nomes_respostas <- names(respostas_list)
@@ -255,7 +255,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1"
     )
 
     equacao_str <- sprintf(
-      "%s: Y = %.4f + %.4fX + %.4fX^2 + %.4fX^3",
+      "%s: Ŷ = %.4f + %.4fX + %.4fX² + %.4fX³",
       nome_resposta,
       b0,
       b1,

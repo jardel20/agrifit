@@ -233,32 +233,22 @@ otimizacao_superficie_matrizes <- function(
     )
 
     # Criar gráfico 3D com plotly
-    p_opt_3d <- plotly::plot_ly(
-      x = X1_range,
-      y = X2_range,
-      z = Z_matrix_opt,
-      type = "surface",
-      colorscale = "Viridis",
-      showscale = TRUE
-    ) %>%
-      plotly::add_trace(
+    p_opt_3d <- plotly::plot_ly() %>%
+      plotly::add_surface(
+        x = X1_range, y = X2_range, z = Z_matrix_opt,
+        colorscale = "Viridis", showscale = TRUE,
+        name = "Superfície", opacity = 0.9
+      ) %>%
+      plotly::add_markers(
         x = resultado_dmee$X1_DMEE,
         y = resultado_dmee$X2_DMEE,
         z = resultado_dmee$Y_DMEE,
-        mode = "markers",
-        type = "scatter3d",
-        marker = list(size = 10, color = "red", symbol = "diamond"),
-        name = "DMEE (Máxima Eficiência Econômica)",
-        showlegend = TRUE
+        marker = list(size = 12, color = "gold", symbol = "diamond"),
+        name = "DMEE", showlegend = TRUE
       ) %>%
       plotly::layout(
         title = sprintf("Otimização DMEE - %s", resp),
-        scene = list(
-          xaxis = list(title = "X1"),
-          yaxis = list(title = "X2"),
-          zaxis = list(title = resp)
-        ),
-        showlegend = TRUE
+        scene = list(xaxis = list(title = "X1"), yaxis = list(title = "X2"), zaxis = list(title = resp))
       )
 
     graficos_otimizacao[[resp]] <- p_opt_3d

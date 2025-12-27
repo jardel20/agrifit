@@ -2,41 +2,30 @@
 % Please edit documentation in R/escolha_modelo_adequado.R
 \name{escolha_modelo_adequado}
 \alias{escolha_modelo_adequado}
-\title{Escolha do Modelo Adequado}
+\title{Escolha do Modelo Adequado (RMSE + Critério Flexível + Barras Arranjadas)}
 \usage{
-escolha_modelo_adequado(..., verbose = TRUE)
-}
-\arguments{
-\item{...}{Resultados de ajuste de modelos (listas retornadas pelas funções \verb{ajustar_*}).}
-
-\item{verbose}{Lógico. Gera prints detalhados (padrão: TRUE).}
-}
-\value{
-Data frame consolidado com os resultados de AIC, BIC e R² para todos os modelos e respostas.
-}
-\description{
-Consolida e compara os resultados de diferentes modelos de regressão (Linear, Quadrático, etc.)
-com base em métricas de ajuste como AIC, BIC e R².
-}
-\examples{
-\dontrun{
-dose <- c(0, 50, 100, 150, 200, 250)
-resposta <- c(10, 18, 24, 28, 30, 31)
-
-# Ajusta diferentes modelos
-modelo_linear <- ajustar_linear(dose, Y = resposta, verbose = FALSE)
-modelo_quad <- ajustar_quadratico(dose, Y = resposta, verbose = FALSE)
-modelo_cubico <- ajustar_cubico(dose, Y = resposta, verbose = FALSE)
-
-# Compara os modelos
-comparacao <- escolha_modelo_adequado(
-  modelo_linear,
-  modelo_quad,
-  modelo_cubico,
+escolha_modelo_adequado(
+  ...,
+  criterio = "multiplo",
+  layout_grid = "auto",
+  layout_barras = "auto",
   verbose = TRUE
 )
-
-print(comparacao)
 }
+\arguments{
+\item{...}{Resultados de modelos.}
 
+\item{criterio}{String: "AIC", "BIC", "RMSE", "R2" ou "multiplo" (padrão).}
+
+\item{layout_grid}{"linha", "coluna", "grade", "auto" para gráficos dos modelos.}
+
+\item{layout_barras}{"linha", "coluna", "grade", "auto" para barras de comparação.}
+
+\item{verbose}{Lógico.}
+}
+\value{
+Lista completa com todos os resultados e gráficos.
+}
+\description{
+Compara modelos por R², AIC, BIC, RMSE com gráficos de barras ARRANJADOS.
 }

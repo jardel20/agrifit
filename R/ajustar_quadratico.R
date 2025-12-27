@@ -142,7 +142,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1"
     return(output)
   }
 
-  # --- Lógica Principal ---
+  # Lógica Principal
   respostas_list <- list(...)
   n_respostas <- length(respostas_list)
   nomes_respostas <- names(respostas_list)
@@ -173,10 +173,9 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1"
     RMSE <- sqrt(SSE / n)
 
     # AIC e BIC (Log-Verossimilhança)
-    K <- length(coef(model_fit)) # 3 parâmetros (b0, b1, b2)
-    logL <- -(n / 2) * (log(2 * pi) + log(SSE / n) + 1)
-    AIC_val <- -2 * logL + 2 * K
-    BIC_val <- -2 * logL + K * log(n)
+    logL <- logLik(model_fit)
+    AIC_val <- AIC(model_fit)
+    BIC_val <- BIC(model_fit)
 
     # Extração de Coeficientes e Estatísticas
     coefs <- model_summary$coefficients
@@ -242,7 +241,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1"
     )
 
     equacao_str <- sprintf(
-      "%s: Y = %.4f + %.4fX + %.4fX^2",
+      "%s: Ŷ = %.4f + %.4fX + %.4fX^2",
       nome_resposta,
       b0,
       b1,

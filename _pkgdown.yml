@@ -1,0 +1,35 @@
+url: https://github.com/jardel20/agrifit/
+template:
+  bootstrap: 5
+title: agrifit
+navbar:
+  structure:
+    left:
+    - home
+    - reference
+    - articles
+    - news
+    right:
+    - search
+    - source
+    - github
+reference:
+  - title: Modelos de Regressão
+    contents:
+    - ajustar_linear
+    - ajustar_quadratico
+    - ajustar_cubico
+    - ajustar_exponencial
+    - ajustar_mitscherlich
+    - ajustar_LRP
+    - ajustar_potencial
+    - ajustar_raiz_quadratica
+  - title: Otimização
+    contents:
+    - otimizacao_insumos
+    - otimizacao_superficie_matrizes
+  - title: Análise Avançada
+    contents:
+    - analise_superficie_resposta
+    - escolha_modelo_adequado
+

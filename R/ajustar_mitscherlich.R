@@ -137,15 +137,15 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
       sep_line,
       header,
       sep_line,
-      paste(lines, collapse = ""),
+      paste(lines, collapse = "\n"),
       signif_line,
-      sep = ""
+      sep = "\n"
     )
 
     return(output)
   }
 
-  # --- Lógica Principal ---
+  # Lógica Principal
   respostas_list <- list(...)
   n_respostas <- length(respostas_list)
   nomes_respostas <- names(respostas_list)
@@ -225,7 +225,7 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
         )
 
         equacao_str <- sprintf(
-          "%s: Y = %.4f - %.4f * %.4f^X",
+          "%s: Ŷ = %.4f - %.4f * %.4f^X",
           nome_resposta,
           A,
           B,

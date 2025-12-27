@@ -202,7 +202,7 @@ otimizacao_insumos <- function(
 
     # Criar gráfico
     p_otm <- ggplot2::ggplot(df_curva, ggplot2::aes(x = dose, y = Y)) +
-      ggplot2::geom_line(size = 1, color = "blue") +
+      ggplot2::geom_line(linewidth = 1, color = "blue") +
       ggplot2::geom_point(
         data = data.frame(dose = df_final$DMET[1], Y = df_final$Y_max[1]),
         ggplot2::aes(x = dose, y = Y),

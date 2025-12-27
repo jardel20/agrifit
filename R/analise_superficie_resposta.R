@@ -327,7 +327,7 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
     )
 
     equacao_str <- sprintf(
-      "%s: Ŷ = %.4f + %.4fX1 + %.4fX2 + %.4fX1² + %.4fX2² + %.4fX1X2",
+      "%s: Ŷ = %.4f + %.4fX₁ + %.4fX₂+ %.4fX₁² + %.4fX₂² + %.4fX₁X₂",
       nome_resposta,
       b0,
       b1,
@@ -367,13 +367,12 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
       cat("\n")
     }
 
-    # --- Gráfico de Superfície de Resposta 3D ---
-    # Criar malha de pontos para a superfície
+    # --- Gráfico de Superfície de Resposta 3D (SEM AVISO) ---
     X1_range <- seq(min(X1) - 0.5, max(X1) + 0.5, length.out = 30)
     X2_range <- seq(min(X2) - 0.5, max(X2) + 0.5, length.out = 30)
     grid_data <- expand.grid(X1 = X1_range, X2 = X2_range)
 
-    # Extrair coeficientes originais (antes de substituir NA por 0)
+    # Coeficientes (seu código)
     coefs_orig <- coef(model_fit)
     b0_plot <- coefs_orig[1]
     b1_plot <- coefs_orig[2]
@@ -382,37 +381,24 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
     b22_plot <- ifelse(is.na(coefs_orig[5]), 0, coefs_orig[5])
     b12_plot <- ifelse(is.na(coefs_orig[6]), 0, coefs_orig[6])
 
-    # Calcular Z (resposta predita)
-    grid_data$Z <- b0_plot +
-      b1_plot * grid_data$X1 +
-      b2_plot * grid_data$X2 +
-      b11_plot * grid_data$X1^2 +
-      b22_plot * grid_data$X2^2 +
-      b12_plot * grid_data$X1 * grid_data$X2
+    grid_data$Z <- with(grid_data, b0_plot + b1_plot * X1 + b2_plot * X2 +
+      b11_plot * X1^2 + b22_plot * X2^2 + b12_plot * X1 * X2)
 
-    # Converter para matriz para plotly
-    Z_matrix <- matrix(
-      grid_data$Z,
-      nrow = length(X1_range),
-      ncol = length(X2_range)
-    )
+    Z_matrix <- matrix(grid_data$Z, nrow = length(X1_range), ncol = length(X2_range))
 
-    # Criar gráfico 3D com plotly
-    p_3d <- plotly::plot_ly(
-      x = X1_range,
-      y = X2_range,
-      z = Z_matrix,
-      type = "surface",
-      colorscale = "Viridis",
-      showscale = TRUE
-    ) %>%
-      plotly::add_trace(
-        x = X1,
-        y = X2,
-        z = resposta,
-        mode = "markers",
-        type = "scatter3d",
-        marker = list(size = 6, color = "red", symbol = "circle"),
+    # PLOTLY SEM AVISO - 2 TRACES SEPARADOS
+    p_3d <- plotly::plot_ly() %>%
+      # 1º TRACE: SUPERFÍCIE (sem herança)
+      plotly::add_surface(
+        x = X1_range, y = X2_range, z = Z_matrix,
+        colorscale = "Viridis", showscale = TRUE,
+        name = "Superfície",
+        opacity = 0.9
+      ) %>%
+      # 2º TRACE: PONTOS (sem herdar nada)
+      plotly::add_markers(
+        x = X1, y = X2, z = resposta,
+        marker = list(size = 8, color = "red", symbol = "circle", opacity = 1),
         name = "Observações",
         showlegend = TRUE
       ) %>%
@@ -427,6 +413,7 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
       )
 
     graficos[[nome_resposta]] <- p_3d
+
 
     if (verbose) {
       print(p_3d)
